@@ -4,16 +4,15 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Patient\PatientController;
 use App\Http\Controllers\Patient\ContactController;
 use App\Http\Controllers\Patient\NextOfKinController;
-use Illuminate\Http\Request;
+use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Admin\StaffController;
 
 /*
-|----------------------------------------------------------------------
+|--------------------------------------------------------------------------
 | API Routes
-|----------------------------------------------------------------------
+|--------------------------------------------------------------------------
 |
-| Here is where you can register API routes for your application.
-| These routes are loaded by the RouteServiceProvider within a group
-| which is assigned the "api" middleware group. Enjoy building your API!
+| These routes are loaded by the RouteServiceProvider and are assigned to the "api" middleware group.
 |
 */
 
@@ -28,6 +27,7 @@ Route::prefix('patients')->group(function () {
 
 // Contact Routes
 Route::prefix('contacts')->group(function () {
+    Route::get('/{patient_id}', [ContactController::class, 'show']);
     Route::post('/', [ContactController::class, 'store']);
     Route::put('/{id}', [ContactController::class, 'update']);
     Route::delete('/{id}', [ContactController::class, 'destroy']);
@@ -35,7 +35,24 @@ Route::prefix('contacts')->group(function () {
 
 // Next of Kin Routes
 Route::prefix('next-of-kin')->group(function () {
+    Route::get('/{patient_id}', [NextOfKinController::class, 'show']);
     Route::post('/', [NextOfKinController::class, 'store']);
     Route::put('/{id}', [NextOfKinController::class, 'update']);
     Route::delete('/{id}', [NextOfKinController::class, 'destroy']);
+});
+
+// Auth and Staff Routes
+Route::post('/login', [AuthController::class, 'login']);
+
+// Requires authentication
+Route::middleware('auth:sanctum')->group(function () {
+    // Staff changes password (first login)
+    Route::post('/change-password', [AuthController::class, 'changePassword']);
+
+    // Admin creates new staff
+    Route::post('/admin/staff', [StaffController::class, 'createStaff']);
+
+    // Admin resets a staff password
+    Route::post('/admin/staff/reset-password', [AuthController::class, 'resetStaffPassword']);
+
 });

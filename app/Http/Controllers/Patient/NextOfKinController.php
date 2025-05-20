@@ -30,16 +30,16 @@ class NextOfKinController extends Controller
         return response()->json($nextOfKin, 201);
     }
 
-    // Display the next of kin information for a patient
+    // Get all next of kin information for a specific patient.
     public function show($patientId)
     {
-        $nextOfKin = NextOfKin::where('PatientID', $patientId)->first();
+        $nextOfKinRecords = NextOfKin::where('PatientID', $patientId)->get();
 
-        if (!$nextOfKin) {
-            return response()->json(['message' => 'Next of kin not found for this patient'], 404);
+        if ($nextOfKinRecords->isEmpty()) {
+            return response()->json(['message' => 'No next of kin found for this patient'], 404);
         }
 
-        return response()->json($nextOfKin);
+        return response()->json($nextOfKinRecords);
     }
 
     // Update the next of kin information.

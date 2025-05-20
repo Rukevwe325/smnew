@@ -8,6 +8,18 @@ use Illuminate\Http\Request;
 
 class ContactController extends Controller
 {
+    // Display contact information for a given patient ID.
+    public function show($patientId)
+    {
+        $contact = Contact::where('PatientID', $patientId)->first();
+
+        if (!$contact) {
+            return response()->json(['message' => 'Contact not found'], 404);
+        }
+
+        return response()->json($contact);
+    }
+
     // Store the contact information for a patient.
     public function store(Request $request)
     {
