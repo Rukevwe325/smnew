@@ -1,4 +1,4 @@
-<?php 
+<?php
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Patient\PatientController;
@@ -12,7 +12,7 @@ use App\Http\Controllers\Admin\StaffController;
 | API Routes
 |--------------------------------------------------------------------------
 |
-| These routes are loaded by the RouteServiceProvider and are assigned to the "api" middleware group.
+| These routes are loaded by the RouteServiceProvider and assigned to the "api" middleware group.
 |
 */
 
@@ -44,15 +44,17 @@ Route::prefix('next-of-kin')->group(function () {
 // Auth and Staff Routes
 Route::post('/login', [AuthController::class, 'login']);
 
-// Requires authentication
+// Routes requiring authentication
 Route::middleware('auth:sanctum')->group(function () {
     // Staff changes password (first login)
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
-    // Admin creates new staff
-    Route::post('/admin/staff', [StaffController::class, 'createStaff']);
+    // Admin-only routes protected by isAdmin middleware
+    Route::middleware('isAdmin')->group(function () {
+        // Admin creates new staff
+        Route::post('/admin/staff', [StaffController::class, 'createStaff']);
 
-    // Admin resets a staff password
-    Route::post('/admin/staff/reset-password', [AuthController::class, 'resetStaffPassword']);
-
+        // Admin resets a staff password
+        Route::post('/admin/staff/reset-password', [AuthController::class, 'resetStaffPassword']);
+    });
 });

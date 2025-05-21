@@ -8,13 +8,20 @@ use Laravel\Sanctum\Http\Middleware\EnsureFrontendRequestsAreStateful;
 return Application::configure(basePath: dirname(__DIR__))
     ->withRouting(
         web: __DIR__.'/../routes/web.php',
-        api: __DIR__.'/../routes/api.php', // Ensure API routes are included
+        api: __DIR__.'/../routes/api.php', // API routes
         commands: __DIR__.'/../routes/console.php',
         health: '/up',
     )
     ->withMiddleware(function (Middleware $middleware) {
-        // Add Sanctum middleware for API requests
+        // Apply Sanctum middleware to web routes for SPA authentication
         $middleware->web(append: EnsureFrontendRequestsAreStateful::class);
+
+        // Register auth:sanctum middleware for API routes to protect endpoints
+        $middleware->api(append: 'auth:sanctum');
+
+        // Register custom middleware aliases for your app
+       $middleware->alias(['isAdmin' => 'App\Http\Middleware\IsAdmin']);
+
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

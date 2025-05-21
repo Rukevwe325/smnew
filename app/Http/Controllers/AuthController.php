@@ -52,9 +52,16 @@ class AuthController extends Controller
         return response()->json(['message' => 'Password updated successfully']);
     }
 
-    // Admin resets password for a staff
+    // Admin resets password for a staff (restricted to role_id == 1)
     public function resetStaffPassword(Request $request)
     {
+        $authUser = auth()->user();
+
+        // 🔐 Restrict to Admin only
+        if ($authUser->role_id !== 1) {
+            return response()->json(['message' => 'Unauthorized – Only admin can reset passwords'], 403);
+        }
+
         $request->validate([
             'staff_id' => 'required|exists:users,staff_id'
         ]);
