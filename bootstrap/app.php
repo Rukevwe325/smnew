@@ -20,8 +20,10 @@ return Application::configure(basePath: dirname(__DIR__))
         $middleware->api(append: 'auth:sanctum');
 
         // Register custom middleware aliases for your app
-       $middleware->alias(['isAdmin' => 'App\Http\Middleware\IsAdmin']);
-
+        $middleware->alias([
+            'isAdmin' => 'App\Http\Middleware\IsAdmin',
+            'isRecorderOrAdmin' => 'App\Http\Middleware\IsRecorderOrAdmin',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions) {
         //

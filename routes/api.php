@@ -17,31 +17,49 @@ use App\Http\Controllers\Admin\StaffController;
 */
 
 // Patient Routes
-Route::prefix('patients')->group(function () {
+Route::prefix('patients')->middleware('auth:sanctum')->group(function () {
+    // Anyone logged in can get patients
     Route::get('/', [PatientController::class, 'index']);
-    Route::post('/', [PatientController::class, 'store']);
     Route::get('/{id}', [PatientController::class, 'show']);
-    Route::put('/{id}', [PatientController::class, 'update']);
-    Route::delete('/{id}', [PatientController::class, 'destroy']);
+
+    // Only admin or recorder can create
+    Route::post('/', [PatientController::class, 'store'])->middleware('isRecorderOrAdmin');
+
+    // Only admin can update
+    Route::put('/{id}', [PatientController::class, 'update'])->middleware('isAdmin');
+
+    // No delete route (no one can delete)
 });
 
 // Contact Routes
-Route::prefix('contacts')->group(function () {
+Route::prefix('contacts')->middleware('auth:sanctum')->group(function () {
+    // Anyone logged in can get contacts
     Route::get('/{patient_id}', [ContactController::class, 'show']);
-    Route::post('/', [ContactController::class, 'store']);
-    Route::put('/{id}', [ContactController::class, 'update']);
-    Route::delete('/{id}', [ContactController::class, 'destroy']);
+
+    // Only admin or recorder can create
+    Route::post('/', [ContactController::class, 'store'])->middleware('isRecorderOrAdmin');
+
+    // Only admin can update
+    Route::put('/{id}', [ContactController::class, 'update'])->middleware('isAdmin');
+
+    // No delete route
 });
 
 // Next of Kin Routes
-Route::prefix('next-of-kin')->group(function () {
+Route::prefix('next-of-kin')->middleware('auth:sanctum')->group(function () {
+    // Anyone logged in can get next of kin info
     Route::get('/{patient_id}', [NextOfKinController::class, 'show']);
-    Route::post('/', [NextOfKinController::class, 'store']);
-    Route::put('/{id}', [NextOfKinController::class, 'update']);
-    Route::delete('/{id}', [NextOfKinController::class, 'destroy']);
+
+    // Only admin or recorder can create
+    Route::post('/', [NextOfKinController::class, 'store'])->middleware('isRecorderOrAdmin');
+
+    // Only admin can update
+    Route::put('/{id}', [NextOfKinController::class, 'update'])->middleware('isAdmin');
+
+    // No delete route
 });
 
-// Auth and Staff Routes
+// Authentication Routes
 Route::post('/login', [AuthController::class, 'login']);
 
 // Routes requiring authentication
@@ -49,7 +67,7 @@ Route::middleware('auth:sanctum')->group(function () {
     // Staff changes password (first login)
     Route::post('/change-password', [AuthController::class, 'changePassword']);
 
-    // Admin-only routes protected by isAdmin middleware
+    // Admin-only routes
     Route::middleware('isAdmin')->group(function () {
         // Admin creates new staff
         Route::post('/admin/staff', [StaffController::class, 'createStaff']);
